@@ -91,21 +91,32 @@ export const getMarkdownObject = <T>(frontMatter: string[], content: string[], s
 
 // -----------------------------------------------------------------
 
-const BlogFrontMatterSchema = z.object({
-  title: z.string().min(1, 'Title cannot be empty'),
-  description: z.string().min(1, 'Description cannot be empty'),
-  tags: z.array(z.string()).min(1, 'At least one tag is required'),
-  date_published: z.coerce.date().max(new Date(), 'Date cannot be in the future'),
-  date_added: z.coerce.date(),
-  date_updated: z.coerce.date(),
-  pinned: z.boolean(),
-}).strict();
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 
-type BlogPost = z.infer<typeof BlogFrontMatterSchema>;
+// At top of file, after imports
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const markdownObject = parseMarkdownFile('demo.md');
+if (process.argv[1] === __filename) {
+  console.log('from code')
 
-const result = getMarkdownObject<BlogPost>(markdownObject.frontMatter, markdownObject.content, BlogFrontMatterSchema);
+  const BlogFrontMatterSchema = z.object({
+    title: z.string().min(1, 'Title cannot be empty'),
+    description: z.string().min(1, 'Description cannot be empty'),
+    tags: z.array(z.string()).min(1, 'At least one tag is required'),
+    date_published: z.coerce.date().max(new Date(), 'Date cannot be in the future'),
+    date_added: z.coerce.date(),
+    date_updated: z.coerce.date(),
+    pinned: z.boolean(),
+  }).strict();
 
-//console.log(markdownObject);
-console.log(result);
+  type BlogPost = z.infer<typeof BlogFrontMatterSchema>;
+
+  const markdownObject = parseMarkdownFile('demo.md');
+
+  const result = getMarkdownObject<BlogPost>(markdownObject.frontMatter, markdownObject.content, BlogFrontMatterSchema);
+
+  console.log(markdownObject);
+  console.log(result);
+}

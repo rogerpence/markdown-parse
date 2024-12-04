@@ -2,20 +2,7 @@
 import { expect, test } from 'vitest'
 import {parseMarkdownFile, getMarkdownObject} from './markdown-parse.ts';
 import { z } from 'zod';
-
-const BlogFrontMatterSchema = z.object({
-    title: z.string().min(1, 'Title cannot be empty'),
-    description: z.string().min(1, 'Description cannot be empty'),
-    tags: z.array(z.string()).min(1, 'At least one tag is required'),
-    date_published: z.coerce.date().max(new Date(), 'Date cannot be in the future'),
-    date_added: z.coerce.date(),
-    date_updated: z.coerce.date(),
-    pinned: z.boolean(),
-    author: z.string().optional()
-  }).strict();
-  
-type BlogPost = z.infer<typeof BlogFrontMatterSchema>;
-
+import { BlogFrontMatterSchema, type BlogPost } from './BlogInfo.ts';
 
 test('all values exception optional values', () => {
     const frontMatter = []
@@ -37,7 +24,7 @@ test('all values exception optional values', () => {
     expect(result.success).toBe(true)
 })
 
-test('all values with optoinal value', () => {
+test('all values with optional value', () => {
     const frontMatter = []
     frontMatter.push("title: Demo page for css")
     frontMatter.push("description: Astro notes")
@@ -54,8 +41,10 @@ test('all values with optoinal value', () => {
     const content : string[] = []
     
     const result = getMarkdownObject<BlogPost>(frontMatter, content, BlogFrontMatterSchema);    
-
     expect(result.success).toBe(true)
+
+    // console.log(result.errorType)
+    // console.log(result.error)
 })
 
 test('missing tags property', () => {
@@ -71,7 +60,7 @@ test('missing tags property', () => {
     
     const result = getMarkdownObject<BlogPost>(frontMatter, content, BlogFrontMatterSchema);    
     expect(result.success).toBe(false)
-    console.log(result.error)
+    //console.log('missing tags property test-->', result.error)
 })
 
 test('wrong tags type', () => {
@@ -88,11 +77,11 @@ test('wrong tags type', () => {
     
     const result = getMarkdownObject<BlogPost>(frontMatter, content, BlogFrontMatterSchema);    
     expect(result.success).toBe(false)
-    if (result.errorType === 'Parsing error' && result.issues) {
-        for (const issue of result.issues) {
-            console.log(`Field: ${issue.path[0]} - ${issue.message}`)
-        }
-    }
+    // if (result.errorType === 'Parsing error' && result.issues) {
+    //     for (const issue of result.issues) {
+    //         console.log(`Field: ${issue.path[0]} - ${issue.message}`)
+    //     }
+    // }
 })
 
 test('extra field (extra_value) and missing field (pinned)', () => {
@@ -112,10 +101,10 @@ test('extra field (extra_value) and missing field (pinned)', () => {
     
     const result = getMarkdownObject<BlogPost>(frontMatter, content, BlogFrontMatterSchema);    
     expect(result.success).toBe(false)
-    if (result.errorType?.startsWith('Missing/extra')) {
-        expect(result.errorType).toMatch(/^Missing/)
-        console.log(result.error)
-    }
+    // if (result.errorType?.startsWith('Missing/extra')) {
+    //     expect(result.errorType).toMatch(/^Missing/)
+    //     console.log(result.error)
+    // }
 })
 
 
