@@ -1,0 +1,20 @@
+{
+  "name": "validate-frontmatter",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
+    "vitest": "^2.1.8"
+  },
+  "scripts": {
+    "test": "vitest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.8"
+  }
+}
